@@ -2,17 +2,17 @@
 RPGCoreAPIを使用するには簡単なセットアップが必要です。<br>
 
 <br><br>
-##Mavenの設定
+## Mavenの設定
 
 <br>
 
-###gradleの場合
+### gradleの場合
 ```
 repositories {
 	maven { url 'https://jitpack.io' }
 }
 dependencies {
-	implementation 'com.github.Firstmemory-Network:RPGCoreAPI:-SNAPSHOT'
+	implementation 'com.github.Firstmemory-Network:RPGCoreAPI:26e47f7402'
 }
 ```
 <br>
@@ -28,7 +28,7 @@ dependencies {
 <dependency>
 	<groupId>com.github.Firstmemory-Network</groupId>
 	<artifactId>RPGCoreAPI</artifactId>
-	<version>-SNAPSHOT</version>
+	<version>26e47f7402</version>
 </dependency>
 ```
 <br>
