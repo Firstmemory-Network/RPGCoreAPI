@@ -1,15 +1,10 @@
 package dev.firstmemory.rpgcore
 
-import dev.firstmemory.rpgcore.events.PlayerLevelUpEvent
 import dev.moru3.minepie.thread.MultiThreadScheduler
 import me.moru3.sqlow.*
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
-import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
 
 class RPGCore : JavaPlugin(), Listener {
@@ -53,6 +48,6 @@ class RPGCore : JavaPlugin(), Listener {
         private var api: API? = null
         private fun setRPGCoreAPI(api: API) { this.api = api }
 
-        fun getRPGCoreAPI(): API { return api?:throw NullPointerException("api is null!") }
+        public fun getRPGCoreAPI(): API { return api?:throw NullPointerException("api is null!") }
     }
 }

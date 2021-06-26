@@ -1,16 +1,39 @@
-import org.apache.tools.ant.filters.ReplaceTokens
+import org.apache.tools.ant.filters.*
 
 apply plugin: 'java'
-apply plugin: 'kotlin'
+apply plugin: "kotlin"
 apply plugin: 'maven-publish'
+apply plugin: "com.github.johnrengelman.shadow"
 
 group = 'dev.firstmemory'
-version = 'BETA_0.8'
+version = '1.0-SNAPSHOT'
 
-compileJava.options.encoding = 'UTF-8'
-compileTestJava.options.encoding = 'UTF-8'
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
+ext.pluginName = 'RPGCore'
+ext.author = 'moru3_48'
+ext.mainPackage = 'dev.firstmemory.rpgcore'
+ext.mainClass = mainPackage + ".RPGCore"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+buildscript {
+    ext.kotlin_version = '1.5.10'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.3"
+    }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 repositories {
@@ -21,41 +44,41 @@ repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
 }
+
+compileJava {
+    options.compilerArgs += ["-parameters"]
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+}
+compileKotlin {
+    kotlinOptions.javaParameters = true
+}
+
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
 
     compileOnly group: 'io.netty', name: 'netty-all', version: '4.1.24.Final'
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'com.github.moru348:SQLow:03def29f35'
+    api 'com.github.moru348:SQLow:03def29f35'
 }
+
+configurations {
+    testCompile.extendsFrom compileOnly
+}
+
+shadowJar {
+    relocate 'co.aikar.commands', "${mainPackage}.acf"
+}
+build { dependsOn shadowJar }
 
 processResources {
-    filesNotMatching("**/*.png") {
-        it.filter(ReplaceTokens, tokens: [version: version])
-    }
-}
-buildscript {
-    ext.kotlin_version = '1.4.32'
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
-jar {
-    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    filteringCharset = 'UTF-8'
+    filter ReplaceTokens, tokens: [
+            "pluginName"     : pluginName,
+            "project.version": project.property("version"),
+            "author"         : author,
+            "mainClass"      : mainClass
+    ]
 }
 
 task sourceJar(type: Jar) {
@@ -67,7 +90,7 @@ publishing {
     publications {
         target(MavenPublication) {
             groupId 'dev.firstmemory'
-            artifactId 'mipie'
+            artifactId 'rpgcore'
             version version
             from components.java
             artifact tasks.sourceJar
