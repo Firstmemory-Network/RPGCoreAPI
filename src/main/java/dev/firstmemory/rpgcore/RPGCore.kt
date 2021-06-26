@@ -1,6 +1,7 @@
 package dev.firstmemory.rpgcore
 
 import dev.firstmemory.rpgcore.events.PlayerLevelUpEvent
+import dev.moru3.minepie.thread.MultiThreadScheduler
 import me.moru3.sqlow.*
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
@@ -33,31 +34,13 @@ class RPGCore : JavaPlugin(), Listener {
 
         setRPGCoreAPI(api)
 
-        Bukkit.getPluginManager().registerEvents(this, this)
+        Bukkit.getOnlinePlayers().forEach(api::oldToNowLevel)
 
-        Bukkit.getOnlinePlayers().forEach { onJoin(PlayerJoinEvent(it, null)) }
-    }
-
-    @EventHandler
-    fun onQuit(event: PlayerQuitEvent) {
-        Update("userdata", Where().addKey("uuid").equals().addValue(event.player.uniqueId))
-            .addValue("old_level", api.getLevel(event.player)).send()
-    }
-
-    @EventHandler
-    fun onJoin(event: PlayerJoinEvent) {
-        val now = api.getLevel(event.player)
-        val result = Select("userdata", Where().addKey("uuid").equals().addValue(event.player.uniqueId)).send()
-        result.next().takeIf(true::equals)?:return
-        val old = result.getInt("old_level")
-        if(old==now) { return }
-        repeat((1..now-old).count()) {
-            Bukkit.getPluginManager().callEvent(PlayerLevelUpEvent(event.player))
-        }
+        saveDefaultConfig()
     }
 
     override fun onDisable() {
-        // Plugin shutdown logic
+        MultiThreadScheduler.timers.forEach(MultiThreadScheduler::stop)
     }
 
     fun setupPlayer(player: OfflinePlayer) {

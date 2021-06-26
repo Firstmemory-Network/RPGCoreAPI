@@ -3,7 +3,34 @@ RPGCoreAPIを使用するには簡単なセットアップが必要です。<br>
 
 <br><br>
 ##Mavenの設定
-https://jitpack.io/#Firstmemory-Network/RPGCoreAPI/42bc78ebcb
+
+<br>
+
+###gradleの場合
+```
+repositories {
+	maven { url 'https://jitpack.io' }
+}
+dependencies {
+	implementation 'com.github.Firstmemory-Network:RPGCoreAPI:42bc78ebcb'
+}
+```
+<br>
+
+###mavenの場合
+```
+<repositories>
+	<repository>
+		<id>jitpack.io</id>
+		<url>https://jitpack.io</url>
+	</repository>
+</repositories>
+<dependency>
+	<groupId>com.github.Firstmemory-Network</groupId>
+	<artifactId>RPGCoreAPI</artifactId>
+	<version>42bc78ebcb</version>
+</dependency>
+```
 <br>
 このページを参考に設定してください。
 
@@ -73,8 +100,12 @@ Int removeExp(Player player, Int value)
 ```
 Int getLevel(Player player)
 ```
-### API.setLevel
-プレイヤーのレベルを設定します。
-```
-Int setLevel(Player player, Int value)
-```
+### 一部の関数はここに記載されていないためコメントを参照してください。
+
+<br><br><br>
+## イベント関連
+### PlayerLevelUpEvent
+プレイヤーのレベルが上った際に呼び出されます。<br>
+オフラインの場合オンラインになった際にキャッシュされた分をすべて上げます。<br>
+<br>
+### 一部のイベントはここに記載されていないためdev.firstmemoney.rpgcore.eventsを参照してください。

@@ -6,8 +6,9 @@ import org.bukkit.event.player.PlayerEvent
 
 /**
  * このイベントはキャンセルできません。
+ * またオフラインの際にレベルが上った場合はプレイヤーがオンラインになった際にキャッシュされていた文が一気に上がります。
  */
-class PlayerLevelUpEvent(player: Player): PlayerEvent(player) {
+class PlayerLevelUpEvent(player: Player, val level: Int): PlayerEvent(player) {
     private val handlers = HandlerList()
     override fun getHandlers(): HandlerList { return handlers }
 }

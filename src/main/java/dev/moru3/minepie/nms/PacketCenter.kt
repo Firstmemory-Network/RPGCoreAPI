@@ -17,7 +17,7 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
 
 class PacketCenter(val main: JavaPlugin): IgnoreRunnable, Listener {
-    init {
+    /**init {
         Bukkit.getOnlinePlayers().forEach(this::createNewPipeline)
         Bukkit.getPluginManager().registerEvents(this, main)
     }
@@ -66,5 +66,5 @@ class PacketCenter(val main: JavaPlugin): IgnoreRunnable, Listener {
                         .invoke(this,"packet_handler", "${this@createNewPipeline.name}-runformoney_reloaded", channelHandlerAdapter)
                 }
         }.ignoreException()
-    }
+    }**/
 }
