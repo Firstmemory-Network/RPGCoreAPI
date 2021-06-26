@@ -14,7 +14,10 @@ tasks.withType(JavaCompile) {
 }
 
 repositories {
-    mavenLocal()
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
     mavenCentral()
     maven { url 'https://jitpack.io' }
 }

@@ -22,8 +22,7 @@ class RPGCore : JavaPlugin(), Listener {
         SQLow.connect(file)
 
         Table("userdata").also {
-            it.addColumn(Column("id", DataType.INT).setPrimaryKey(true).setAutoIncrement(true).setNotNull(true))
-            it.addColumn(Column("uuid", DataType.VARCHAR).setProperty(36))
+            it.addColumn(Column("uuid", DataType.VARCHAR).setProperty(36).setPrimaryKey(true))
             it.addColumn(Column("money", DataType.INT).setNotNull(true).setDefault(0))
             it.addColumn(Column("exp", DataType.INT).setNotNull(true).setDefault(0))
             it.addColumn(Column("level", DataType.INT).setNotNull(true).setDefault(1))
