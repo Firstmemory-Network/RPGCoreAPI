@@ -59,7 +59,7 @@ dependencies {
 
     compileOnly group: 'io.netty', name: 'netty-all', version: '4.1.24.Final'
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    api 'com.github.moru348:SQLow:03def29f35'
+    api 'com.github.moru348:SQLow:master-SNAPSHOT'
 }
 
 configurations {
