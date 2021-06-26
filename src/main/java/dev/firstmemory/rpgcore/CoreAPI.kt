@@ -23,6 +23,7 @@ class CoreAPI(private val main: RPGCore): API {
     private val moneyCache = mutableMapOf<UUID, Int>()
     private val expCache = mutableMapOf<UUID, Int>()
     private val levelCache = mutableMapOf<UUID, Int>()
+    private val skillPointCache = mutableMapOf<UUID, Int>()
 
     private val levelUpCoefficient = main.config.getDouble("level_up_coefficient", 10.0)
 
@@ -109,9 +110,29 @@ class CoreAPI(private val main: RPGCore): API {
         }
     }
 
+    override fun getSkillPoint(player: OfflinePlayer): Int {
+        skillPointCache[player.uniqueId]?.also { return it }
+        val result = Select("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).send()
+        return if(result.next()) {
+            result.getInt("skill_point").also { skillPointCache[player.uniqueId] = it }
+        } else {
+            main.setupPlayer(player)
+            getSkillPoint(player)
+        }
+    }
+
+    override fun setSkillPoint(player: OfflinePlayer, value: Int): Int {
+        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("skill_point", value).send()
+        skillPointCache[player.uniqueId] = value
+        return value
+    }
+
+
+
     private fun setLevel(player: OfflinePlayer, level: Int) {
         Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId))
             .addValue("level", level)
+        levelCache[player.uniqueId] = level
     }
 
     private fun setOldLevel(player: OfflinePlayer, level: Int) {
@@ -151,10 +172,5 @@ class CoreAPI(private val main: RPGCore): API {
 
     init {
         main.registerEvent<PlayerJoinEvent> { oldToNowLevel(player) }
-        main.registerEvent<PlayerQuitEvent> {
-            levelCache.remove(player.uniqueId)
-            moneyCache.remove(player.uniqueId)
-            expCache.remove(player.uniqueId)
-        }
     }
 }

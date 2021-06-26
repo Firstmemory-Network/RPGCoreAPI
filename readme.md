@@ -100,6 +100,16 @@ Int removeExp(Player player, Int value)
 ```
 Int getLevel(Player player)
 ```
+### API.getSkillPoint
+プレイヤーのスキルポイントを取得します。
+```
+Int getSkillPoint(Player player)
+```
+### API.setSkillPoint
+プレイヤーのスキルポイントを設定します。
+```
+Int setSkillPoint(Player player, Int value)
+```
 ### 一部の関数はここに記載されていないためコメントを参照してください。
 
 <br><br><br>

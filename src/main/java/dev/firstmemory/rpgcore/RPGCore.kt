@@ -28,6 +28,7 @@ class RPGCore : JavaPlugin(), Listener {
             it.addColumn(Column("exp", DataType.INT).setNotNull(true).setDefault(0))
             it.addColumn(Column("level", DataType.INT).setNotNull(true).setDefault(1))
             it.addColumn(Column("last_level", DataType.INT).setNotNull(true).setDefault(1))
+            it.addColumn(Column("skill_point", DataType.INT).setNotNull(true).setDefault(0))
         }.send(false)
 
         Bukkit.getOnlinePlayers().forEach(this::setupPlayer)

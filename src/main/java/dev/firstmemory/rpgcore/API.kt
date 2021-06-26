@@ -44,4 +44,14 @@ interface API {
      * プレイヤーのレベルを取得します。
      */
     fun getLevel(player: OfflinePlayer): Int
+
+    /**
+     * プレイヤーのスキルポイントを取得します。
+     */
+    fun getSkillPoint(player: OfflinePlayer): Int
+
+    /**
+     * プレイヤーのスキルポイントを設定します。
+     */
+    fun setSkillPoint(player: OfflinePlayer, value: Int): Int
 }
