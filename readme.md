@@ -12,7 +12,7 @@ repositories {
 	maven { url 'https://jitpack.io' }
 }
 dependencies {
-	implementation 'com.github.Firstmemory-Network:RPGCoreAPI:699fe6398b'
+	implementation 'com.github.Firstmemory-Network:RPGCoreAPI:-SNAPSHOT'
 }
 ```
 <br>
@@ -28,7 +28,7 @@ dependencies {
 <dependency>
 	<groupId>com.github.Firstmemory-Network</groupId>
 	<artifactId>RPGCoreAPI</artifactId>
-	<version>699fe6398b</version>
+	<version>-SNAPSHOT</version>
 </dependency>
 ```
 <br>
