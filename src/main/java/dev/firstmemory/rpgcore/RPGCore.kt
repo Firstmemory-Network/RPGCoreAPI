@@ -9,9 +9,11 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class RPGCore : JavaPlugin(), Listener {
 
-    private val api = CoreAPI(this)
+    private var api: CoreAPI? = null
 
     override fun onEnable() {
+        saveDefaultConfig()
+
         val file = dataFolder.resolve("database.db")
         if(!file.exists()) { file.createNewFile() }
         SQLow.connect(file)
@@ -27,14 +29,15 @@ class RPGCore : JavaPlugin(), Listener {
 
         Bukkit.getOnlinePlayers().forEach(this::setupPlayer)
 
-        setRPGCoreAPI(api)
+        api = CoreAPI(this)
 
-        Bukkit.getOnlinePlayers().forEach(api::oldToNowLevel)
+        setRPGCoreAPI(api!!)
 
-        saveDefaultConfig()
+        Bukkit.getOnlinePlayers().forEach(api!!::oldToNowLevel)
     }
 
     override fun onDisable() {
+        SQLow.getConnection().close()
         MultiThreadScheduler.timers.forEach(MultiThreadScheduler::stop)
     }
 
@@ -48,6 +51,8 @@ class RPGCore : JavaPlugin(), Listener {
         private var api: API? = null
         private fun setRPGCoreAPI(api: API) { this.api = api }
 
-        public fun getRPGCoreAPI(): API { return api?:throw NullPointerException("api is null!") }
+        fun getRPGCoreAPI(): API {
+            return api?:throw NullPointerException("Please refer to it after starting the API.")
+        }
     }
 }

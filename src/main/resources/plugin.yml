@@ -1,5 +1,5 @@
 name: RPGCoreAPI
-version: @version@
+version: '1.0-SNAPSHOT'
 main: dev.firstmemory.rpgcore.RPGCore
 api-version: 1.16
 authors: [ moru3_48 ]

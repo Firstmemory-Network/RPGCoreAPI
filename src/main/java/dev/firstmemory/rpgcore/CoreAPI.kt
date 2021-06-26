@@ -55,7 +55,9 @@ class CoreAPI(private val main: RPGCore): API {
         moneyCache[player.uniqueId]?.also { return it }
         val result = Select("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).send()
         return if(result.next()) {
-            result.getInt("money").also { moneyCache[player.uniqueId] = it }
+            result.getInt("money").also { moneyCache[player.uniqueId] = it }.also {
+                result.close()
+            }
         } else {
             main.setupPlayer(player)
             getBalance(player)
@@ -66,7 +68,9 @@ class CoreAPI(private val main: RPGCore): API {
         expCache[player.uniqueId]?.also { return it }
         val result = Select("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).send()
         return if(result.next()) {
-            result.getInt("exp").also { expCache[player.uniqueId] = it }
+            result.getInt("exp").also { expCache[player.uniqueId] = it }.also {
+                result.close()
+            }
         } else {
             main.setupPlayer(player)
             getExp(player)
@@ -103,7 +107,9 @@ class CoreAPI(private val main: RPGCore): API {
         levelCache[player.uniqueId]?.also { return it }
         val result = Select("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).send()
         return if(result.next()) {
-            result.getInt("level").also { levelCache[player.uniqueId] = it }
+            result.getInt("level").also { levelCache[player.uniqueId] = it }.also {
+                result.close()
+            }
         } else {
             main.setupPlayer(player)
             getLevel(player)
