@@ -154,6 +154,13 @@ class CoreAPI(private val main: RPGCore): API {
         }
     }
 
+    override fun getSkillPoint(player: OfflinePlayer): Int {
+        return getStatusPoint(player)
+    }
+
+    override fun setSkillPoint(player: OfflinePlayer, value: Int) {
+        setStatusPoint(player, value)
+    }
 
     private fun setLevel(player: OfflinePlayer, level: Int) {
         Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId))

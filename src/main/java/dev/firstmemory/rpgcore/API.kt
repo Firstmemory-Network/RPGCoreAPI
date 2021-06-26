@@ -46,6 +46,12 @@ interface API {
      */
     fun getLevel(player: OfflinePlayer): Int
 
+    @Deprecated("getSkillPoint->getStatusPoint")
+    fun getSkillPoint(player: OfflinePlayer): Int
+
+    @Deprecated("setSkillPoint->setStatusPoint")
+    fun setSkillPoint(player: OfflinePlayer, value: Int)
+
     /**
      * プレイヤーのスキルポイントを取得します。
      */
