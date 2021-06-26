@@ -4,10 +4,9 @@ import dev.moru3.minepie.thread.MultiThreadScheduler
 import me.moru3.sqlow.*
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
-import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 
-class RPGCore : JavaPlugin(), Listener {
+class RPGCore : JavaPlugin() {
 
     private var api: CoreAPI? = null
 
@@ -27,6 +26,15 @@ class RPGCore : JavaPlugin(), Listener {
             it.addColumn(Column("skill_point", DataType.INT).setNotNull(true).setDefault(0))
         }.send(false)
 
+        Table("status").also {
+            it.addColumn(Column("uuid", DataType.VARCHAR).setProperty(36).setPrimaryKey(true))
+            it.addColumn(Column("stamina", DataType.SMALLINT).setDefault(10).setNotNull(true))
+            it.addColumn(Column("defence", DataType.SMALLINT).setDefault(10).setNotNull(true))
+            it.addColumn(Column("strength", DataType.SMALLINT).setDefault(10).setNotNull(true))
+            it.addColumn(Column("intelligence", DataType.SMALLINT).setDefault(10).setNotNull(true))
+            it.addColumn(Column("vomiting", DataType.SMALLINT).setDefault(10).setNotNull(true))
+        }
+
         Bukkit.getOnlinePlayers().forEach(this::setupPlayer)
 
         api = CoreAPI(this)
@@ -43,6 +51,9 @@ class RPGCore : JavaPlugin(), Listener {
 
     fun setupPlayer(player: OfflinePlayer) {
         Insert("userdata")
+            .addValue(DataType.VARCHAR ,"uuid", player.uniqueId)
+            .send(false)
+        Insert("status")
             .addValue(DataType.VARCHAR ,"uuid", player.uniqueId)
             .send(false)
     }

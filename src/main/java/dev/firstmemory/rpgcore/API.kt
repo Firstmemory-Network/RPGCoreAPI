@@ -1,6 +1,7 @@
 package dev.firstmemory.rpgcore
 
 import org.bukkit.OfflinePlayer
+import java.util.*
 
 interface API {
     /**
@@ -48,10 +49,34 @@ interface API {
     /**
      * プレイヤーのスキルポイントを取得します。
      */
-    fun getSkillPoint(player: OfflinePlayer): Int
+    fun getStatusPoint(player: OfflinePlayer): Int
 
     /**
      * プレイヤーのスキルポイントを設定します。
      */
-    fun setSkillPoint(player: OfflinePlayer, value: Int): Int
+    fun setStatusPoint(player: OfflinePlayer, value: Int): Int
+
+    /**
+     * ステータスのレベルを変更します。
+     */
+    fun setStatusLevel(player: OfflinePlayer, type: StatusType, level: Int)
+
+    /**
+     * ステータスのレベルを取得します。
+     */
+    fun getStatusLevel(player: OfflinePlayer, type: StatusType): Int
+}
+
+enum class StatusType {
+    STAMINA,//スタミナ
+    DEFENCE,//DEFENCE
+    STRENGTH,//強さ
+    INTELLIGENCE,//賢さ
+    VOMITING;//ゲロの強さ??
+
+    val caches = mutableMapOf<UUID, Int>()
+
+    override fun toString(): String {
+        return this.toString().lowercase()
+    }
 }

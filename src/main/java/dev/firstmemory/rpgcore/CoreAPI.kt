@@ -14,8 +14,9 @@ import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
 
 class CoreAPI(private val main: RPGCore): API {
@@ -32,7 +33,9 @@ class CoreAPI(private val main: RPGCore): API {
         Bukkit.getPluginManager().callEvent(event)
         if(event.isCancelled) { return getBalance(player) }
         val result = getBalance(player)+event.value
-        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("money", result).send()
+        MultiThreadRunner {
+            Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("money", result).send()
+        }
         moneyCache[player.uniqueId] = result
         return result
     }
@@ -42,7 +45,9 @@ class CoreAPI(private val main: RPGCore): API {
         Bukkit.getPluginManager().callEvent(event)
         if(event.isCancelled) { return getBalance(player) }
         val result = getBalance(player)-event.value
-        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("money", result).send()
+        MultiThreadRunner {
+            Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("money", result).send()
+        }
         moneyCache[player.uniqueId] = result
         return result
     }
@@ -76,14 +81,18 @@ class CoreAPI(private val main: RPGCore): API {
     override fun addExp(player: OfflinePlayer, value: Int): Int {
         val result = getExp(player)+value
         expCache[player.uniqueId] = result
-        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("exp", result).send()
+        MultiThreadRunner {
+            Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("exp", result).send()
+        }
         isUpLevel(player)
         return result
     }
 
     override fun removeExp(player: OfflinePlayer, value: Int): Int {
         val result = (getExp(player)-value).takeIf { it>=0 }?:0
-        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("exp", result).send()
+        MultiThreadRunner {
+            Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("exp", result).send()
+        }
         expCache[player.uniqueId] = result
         return result
     }
@@ -108,23 +117,42 @@ class CoreAPI(private val main: RPGCore): API {
         }
     }
 
-    override fun getSkillPoint(player: OfflinePlayer): Int {
+    override fun getStatusPoint(player: OfflinePlayer): Int {
         skillPointCache[player.uniqueId]?.also { return it }
         val result = Select("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).send()
         return if(result.next()) {
             result.getInt("skill_point").also { skillPointCache[player.uniqueId] = it }
         } else {
             main.setupPlayer(player)
-            getSkillPoint(player)
+            getStatusPoint(player)
         }
     }
 
-    override fun setSkillPoint(player: OfflinePlayer, value: Int): Int {
-        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("skill_point", value).send()
+    override fun setStatusPoint(player: OfflinePlayer, value: Int): Int {
+        MultiThreadRunner {
+            Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("skill_point", value).send()
+        }
         skillPointCache[player.uniqueId] = value
         return value
     }
 
+    override fun setStatusLevel(player: OfflinePlayer, type: StatusType, level: Int) {
+        type.caches[player.uniqueId] = level
+        MultiThreadRunner {
+            Update("status", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue(type.toString(), min(max(0, level), Short.MAX_VALUE.toInt())).send()
+        }
+    }
+
+    override fun getStatusLevel(player: OfflinePlayer, type: StatusType): Int {
+        type.caches[player.uniqueId]?.also { return it }
+        val result = Select("status", Where().addKey("uuid").equals().addValue(player.uniqueId)).send()
+        return if(result.next()) {
+            result.getInt(type.toString()).also { type.caches[player.uniqueId] = it }
+        } else {
+            main.setupPlayer(player)
+            getStatusLevel(player, type)
+        }
+    }
 
 
     private fun setLevel(player: OfflinePlayer, level: Int) {
@@ -163,6 +191,7 @@ class CoreAPI(private val main: RPGCore): API {
                 } else {
                     this.setOldLevel(player, getLevel(player))
                 }
+                this.setExp(player, ((getExp(player)-(levelUpCoefficient * (getLevel(player)-1))).pow(2)).toInt())
                 this.isUpLevel(player)
             }
         }
