@@ -7,6 +7,7 @@ import dev.moru3.minepie.events.EventRegister.Companion.registerEvent
 import dev.moru3.minepie.thread.MultiThreadRunner
 import dev.moru3.minepie.utils.BukkitRunTask.Companion.runTask
 import dev.moru3.minepie.utils.BukkitRunTask.Companion.runTaskLater
+import dev.moru3.minepie.utils.Utils.Companion.isNull
 import me.moru3.sqlow.Select
 import me.moru3.sqlow.Update
 import me.moru3.sqlow.Where
@@ -25,6 +26,13 @@ class CoreAPI(private val main: RPGCore): API {
     private val expCache = mutableMapOf<UUID, Int>()
     private val levelCache = mutableMapOf<UUID, Int>()
     private val skillPointCache = mutableMapOf<UUID, Int>()
+    private val statusTypes = mutableMapOf<StatusType, MutableMap<UUID, Int>>(
+        StatusType.STAMINA to mutableMapOf(),
+        StatusType.DEFENCE to mutableMapOf(),
+        StatusType.STRENGTH to mutableMapOf(),
+        StatusType.INTELLIGENCE to mutableMapOf(),
+        StatusType.VOMITING to mutableMapOf()
+    )
 
     private val levelUpCoefficient = main.config.getDouble("level_up_coefficient", 10.0)
 
@@ -137,27 +145,35 @@ class CoreAPI(private val main: RPGCore): API {
     }
 
     override fun setStatusLevel(player: OfflinePlayer, type: StatusType, level: Int) {
-        type.caches[player.uniqueId] = level
+        statusTypes[type]?.set(player.uniqueId, level).isNull {
+            statusTypes[type] = mutableMapOf(player.uniqueId to level)
+        }
         MultiThreadRunner {
             Update("status", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue(type.toString(), min(max(0, level), Short.MAX_VALUE.toInt())).send()
         }
     }
 
     override fun getStatusLevel(player: OfflinePlayer, type: StatusType): Int {
-        type.caches[player.uniqueId]?.also { return it }
+        statusTypes[type]?.get(player.uniqueId)?.also { return it }
         val result = Select("status", Where().addKey("uuid").equals().addValue(player.uniqueId)).send()
         return if(result.next()) {
-            result.getInt(type.toString()).also { type.caches[player.uniqueId] = it }
+            result.getInt(type.toString()).also {
+                statusTypes[type]?.set(player.uniqueId, it).isNull {
+                    statusTypes[type] = mutableMapOf(player.uniqueId to it)
+                }
+            }
         } else {
             main.setupPlayer(player)
             getStatusLevel(player, type)
         }
     }
 
+    @Deprecated("getSkillPoint->getStatusPoint", ReplaceWith("getStatusPoint(player)"))
     override fun getSkillPoint(player: OfflinePlayer): Int {
         return getStatusPoint(player)
     }
 
+    @Deprecated("setSkillPoint->setStatusPoint", ReplaceWith("setStatusPoint(player, value)"))
     override fun setSkillPoint(player: OfflinePlayer, value: Int) {
         setStatusPoint(player, value)
     }

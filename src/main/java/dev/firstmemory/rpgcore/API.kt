@@ -1,7 +1,6 @@
 package dev.firstmemory.rpgcore
 
 import org.bukkit.OfflinePlayer
-import java.util.*
 
 interface API {
     /**
@@ -80,9 +79,7 @@ enum class StatusType {
     INTELLIGENCE,//賢さ
     VOMITING;//ゲロの強さ??
 
-    val caches = mutableMapOf<UUID, Int>()
-
     override fun toString(): String {
-        return this.toString().lowercase()
+        return this.toString().toLowerCase()
     }
 }

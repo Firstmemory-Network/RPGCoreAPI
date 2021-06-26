@@ -33,7 +33,7 @@ class RPGCore : JavaPlugin() {
             it.addColumn(Column("strength", DataType.SMALLINT).setDefault(10).setNotNull(true))
             it.addColumn(Column("intelligence", DataType.SMALLINT).setDefault(10).setNotNull(true))
             it.addColumn(Column("vomiting", DataType.SMALLINT).setDefault(10).setNotNull(true))
-        }
+        }.send(false)
 
         Bukkit.getOnlinePlayers().forEach(this::setupPlayer)
 
