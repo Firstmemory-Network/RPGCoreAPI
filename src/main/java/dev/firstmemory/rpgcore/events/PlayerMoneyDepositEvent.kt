@@ -5,6 +5,9 @@ import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 
+/**
+ * 非同期です。
+ */
 class PlayerMoneyDepositEvent(val player: OfflinePlayer, var value: Int): Event(), Cancellable {
 
     private var cancelled = false

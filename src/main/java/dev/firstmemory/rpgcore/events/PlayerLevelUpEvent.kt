@@ -5,6 +5,7 @@ import org.bukkit.event.HandlerList
 import org.bukkit.event.player.PlayerEvent
 
 /**
+ * 非同期です。
  * このイベントはキャンセルできません。
  * またオフラインの際にレベルが上った場合はプレイヤーがオンラインになった際にキャッシュされていた文が一気に上がります。
  */

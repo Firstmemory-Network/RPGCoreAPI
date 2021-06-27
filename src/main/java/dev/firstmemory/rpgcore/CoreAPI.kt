@@ -1,8 +1,6 @@
 package dev.firstmemory.rpgcore
 
-import dev.firstmemory.rpgcore.events.PlayerLevelUpEvent
-import dev.firstmemory.rpgcore.events.PlayerMoneyDepositEvent
-import dev.firstmemory.rpgcore.events.PlayerMoneyWithdrawalEvent
+import dev.firstmemory.rpgcore.events.*
 import dev.moru3.minepie.events.EventRegister.Companion.registerEvent
 import dev.moru3.minepie.thread.MultiThreadRunner
 import dev.moru3.minepie.utils.BukkitRunTask.Companion.runTask
@@ -42,28 +40,26 @@ class CoreAPI(private val main: RPGCore): API {
 
     private val levelUpCoefficient = main.config.getDouble("level_up_coefficient", 10.0)
 
-    override fun deposit(player: OfflinePlayer, value: Int): Int {
-        val event = PlayerMoneyDepositEvent(player, value)
-        Bukkit.getPluginManager().callEvent(event)
-        if(event.isCancelled) { return getBalance(player) }
-        val result = getBalance(player)+event.value
+    override fun deposit(player: OfflinePlayer, value: Int) {
         MultiThreadRunner {
+            val event = PlayerMoneyDepositEvent(player, value)
+            Bukkit.getPluginManager().callEvent(event)
+            if(event.isCancelled) { return@MultiThreadRunner }
+            val result = getBalance(player)+event.value
             Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("money", result).send()
+            moneyCache[player.uniqueId] = result
         }
-        moneyCache[player.uniqueId] = result
-        return result
     }
 
-    override fun withdrawal(player: OfflinePlayer, value: Int): Int {
-        val event = PlayerMoneyWithdrawalEvent(player, value)
-        Bukkit.getPluginManager().callEvent(event)
-        if(event.isCancelled) { return getBalance(player) }
-        val result = getBalance(player)-event.value
+    override fun withdrawal(player: OfflinePlayer, value: Int) {
         MultiThreadRunner {
+            val event = PlayerMoneyWithdrawalEvent(player, value)
+            Bukkit.getPluginManager().callEvent(event)
+            if(event.isCancelled) { return@MultiThreadRunner }
+            val result = getBalance(player)-event.value
             Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("money", result).send()
+            moneyCache[player.uniqueId] = result
         }
-        moneyCache[player.uniqueId] = result
-        return result
     }
 
     override fun getBalance(player: OfflinePlayer): Int {
@@ -92,30 +88,28 @@ class CoreAPI(private val main: RPGCore): API {
         }
     }
 
-    override fun addExp(player: OfflinePlayer, value: Int): Int {
-        val result = getExp(player)+value
-        expCache[player.uniqueId] = result
+    override fun addExp(player: OfflinePlayer, value: Int) {
         MultiThreadRunner {
+            val result = getExp(player)+value
+            expCache[player.uniqueId] = result
             Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("exp", result).send()
+            isUpLevel(player)
         }
-        isUpLevel(player)
-        return result
     }
 
     override fun removeExp(player: OfflinePlayer, value: Int): Int {
         val result = (getExp(player)-value).takeIf { it>=0 }?:0
-        MultiThreadRunner {
-            Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("exp", result).send()
-        }
+        setExp(player, result)
         expCache[player.uniqueId] = result
         return result
     }
 
-    override fun setExp(player: OfflinePlayer, value: Int): Int {
-        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("exp", value).send()
-        expCache[player.uniqueId] = value
-        this.isUpLevel(player)
-        return value
+    override fun setExp(player: OfflinePlayer, value: Int) {
+        MultiThreadRunner {
+            Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("exp", value).send()
+            expCache[player.uniqueId] = value
+            this.isUpLevel(player)
+        }
     }
 
     override fun getLevel(player: OfflinePlayer): Int {
@@ -131,6 +125,10 @@ class CoreAPI(private val main: RPGCore): API {
         }
     }
 
+    override fun addStatusPoint(player: OfflinePlayer, value: Int) {
+        setStatusPoint(player, getStatusPoint(player)+value)
+    }
+
     override fun getStatusPoint(player: OfflinePlayer): Int {
         skillPointCache[player.uniqueId]?.also { return it }
         val result = Select("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).send()
@@ -142,12 +140,12 @@ class CoreAPI(private val main: RPGCore): API {
         }
     }
 
-    override fun setStatusPoint(player: OfflinePlayer, value: Int): Int {
+    override fun setStatusPoint(player: OfflinePlayer, value: Int) {
         MultiThreadRunner {
             Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("skill_point", value).send()
+            Bukkit.getPluginManager().callEvent(PlayerStatusPointChangeEvent(player, value))
+            skillPointCache[player.uniqueId] = value
         }
-        skillPointCache[player.uniqueId] = value
-        return value
     }
 
     override fun setStatusLevel(player: OfflinePlayer, type: StatusType, level: Int) {
@@ -175,7 +173,10 @@ class CoreAPI(private val main: RPGCore): API {
     }
 
     override fun setMaxStamina(player: OfflinePlayer, value: Int) {
-        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("max_stamina", value).send()
+        MultiThreadRunner {
+            Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("max_stamina", value).send()
+            Bukkit.getPluginManager().callEvent(PlayerMaxStaminaChangeEvent(player, value))
+        }
         maxStaminaCache[player.uniqueId] = value
     }
 
@@ -191,11 +192,14 @@ class CoreAPI(private val main: RPGCore): API {
     }
 
     override fun setMaxHealth(player: OfflinePlayer, value: Int) {
-        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("max_health", value).send()
-        maxHealthCache[player.uniqueId] = value
-        val onlinePlayer = player.player
-        if(onlinePlayer!=null) {
-            onlinePlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = value.toDouble()
+        MultiThreadRunner {
+            Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("max_health", value).send()
+            Bukkit.getPluginManager().callEvent(PlayerMaxHealthChangeEvent(player, value))
+            maxHealthCache[player.uniqueId] = value
+            val onlinePlayer = player.player
+            if(onlinePlayer!=null) {
+                main.runTask { onlinePlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = value.toDouble() }
+            }
         }
     }
 
@@ -241,9 +245,11 @@ class CoreAPI(private val main: RPGCore): API {
     }
 
     private fun setLevel(player: OfflinePlayer, level: Int) {
-        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId))
-            .addValue("level", level)
-        levelCache[player.uniqueId] = level
+        MultiThreadRunner {
+            Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId))
+                .addValue("level", level)
+            levelCache[player.uniqueId] = level
+        }
     }
 
     private fun setOldLevel(player: OfflinePlayer, level: Int) {
@@ -271,9 +277,7 @@ class CoreAPI(private val main: RPGCore): API {
                 this.setLevel(player, getLevel(player)+1)
                 val onlinePlayer = player.player
                 if(onlinePlayer!=null) {
-                    main.runTask {
-                        Bukkit.getPluginManager().callEvent(PlayerLevelUpEvent(onlinePlayer, getLevel(player)))
-                    }
+                    Bukkit.getPluginManager().callEvent(PlayerLevelUpEvent(onlinePlayer, getLevel(player)))
                 } else {
                     this.setOldLevel(player, getLevel(player))
                 }
