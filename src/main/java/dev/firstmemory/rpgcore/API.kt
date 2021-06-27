@@ -70,6 +70,46 @@ interface API {
      * ステータスのレベルを取得します。
      */
     fun getStatusLevel(player: OfflinePlayer, type: StatusType): Int
+
+    /**
+     * プレイヤーの最大スタミナを設定します。
+     */
+    fun setMaxStamina(player: OfflinePlayer, value: Int)
+
+    /**
+     * プレイヤーの最大スタミナを返します。
+     */
+    fun getMaxStamina(player: OfflinePlayer): Int
+
+    /**
+     * プレイヤーの最大HPを設定します。
+     */
+    fun setMaxHealth(player: OfflinePlayer, value: Int)
+
+    /**
+     * プレイヤーの最大HPを取得します。
+     */
+    fun getMaxHealth(player: OfflinePlayer): Int
+
+    /**
+     * スタミナを取得します。
+     */
+    fun getStamina(player: OfflinePlayer): Int
+
+    /**
+     * スタミナを設定します。
+     */
+    fun setStamina(player: OfflinePlayer, value: Int)
+
+    /**
+     * HPを設定します。
+     */
+    fun setHealth(player: OfflinePlayer, value: Int)
+
+    /**
+     * HPを取得します。
+     */
+    fun getHealth(player: OfflinePlayer): Int
 }
 
 enum class StatusType {

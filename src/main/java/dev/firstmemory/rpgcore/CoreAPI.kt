@@ -13,6 +13,7 @@ import me.moru3.sqlow.Update
 import me.moru3.sqlow.Where
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
+import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
 import java.util.*
@@ -33,6 +34,11 @@ class CoreAPI(private val main: RPGCore): API {
         StatusType.INTELLIGENCE to mutableMapOf(),
         StatusType.VOMITING to mutableMapOf()
     )
+    private val maxStaminaCache = mutableMapOf<UUID, Int>()
+    private val maxHealthCache = mutableMapOf<UUID, Int>()
+
+    private val health = mutableMapOf<UUID, Int>()
+    private val stamina = mutableMapOf<UUID, Int>()
 
     private val levelUpCoefficient = main.config.getDouble("level_up_coefficient", 10.0)
 
@@ -168,6 +174,62 @@ class CoreAPI(private val main: RPGCore): API {
         }
     }
 
+    override fun setMaxStamina(player: OfflinePlayer, value: Int) {
+        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("max_stamina", value).send()
+        maxStaminaCache[player.uniqueId] = value
+    }
+
+    override fun getMaxStamina(player: OfflinePlayer): Int {
+        maxStaminaCache[player.uniqueId]?.also { return it }
+        val result = Select("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).send()
+        return if(result.next()) {
+            result.getInt("max_stamina").also { maxStaminaCache[player.uniqueId] = it }
+        } else {
+            main.setupPlayer(player)
+            getMaxStamina(player)
+        }
+    }
+
+    override fun setMaxHealth(player: OfflinePlayer, value: Int) {
+        Update("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).addValue("max_health", value).send()
+        maxHealthCache[player.uniqueId] = value
+        val onlinePlayer = player.player
+        if(onlinePlayer!=null) {
+            onlinePlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = value.toDouble()
+        }
+    }
+
+    override fun getMaxHealth(player: OfflinePlayer): Int {
+        maxHealthCache[player.uniqueId]?.also { return it }
+        val result = Select("userdata", Where().addKey("uuid").equals().addValue(player.uniqueId)).send()
+        return if(result.next()) {
+            result.getInt("max_health").also { maxHealthCache[player.uniqueId] = it }
+        } else {
+            main.setupPlayer(player)
+            getMaxHealth(player)
+        }
+    }
+
+    override fun getStamina(player: OfflinePlayer): Int {
+        return stamina[player.uniqueId]?:getMaxStamina(player).also { stamina[player.uniqueId]=it }
+    }
+
+    override fun setStamina(player: OfflinePlayer, value: Int) {
+        stamina[player.uniqueId] = value
+    }
+
+    override fun setHealth(player: OfflinePlayer, value: Int) {
+        health[player.uniqueId] = value
+        val onlinePlayer = player.player
+        if(onlinePlayer!=null) {
+            onlinePlayer.health = value.toDouble()
+        }
+    }
+
+    override fun getHealth(player: OfflinePlayer): Int {
+        return health[player.uniqueId]?:getMaxHealth(player).also { health[player.uniqueId]=it }
+    }
+
     @Deprecated("getSkillPoint->getStatusPoint", ReplaceWith("getStatusPoint(player)"))
     override fun getSkillPoint(player: OfflinePlayer): Int {
         return getStatusPoint(player)
@@ -207,9 +269,10 @@ class CoreAPI(private val main: RPGCore): API {
         MultiThreadRunner {
             if((levelUpCoefficient * getLevel(player)).pow(2) <= getExp(player)) {
                 this.setLevel(player, getLevel(player)+1)
-                if(player is Player) {
+                val onlinePlayer = player.player
+                if(onlinePlayer!=null) {
                     main.runTask {
-                        Bukkit.getPluginManager().callEvent(PlayerLevelUpEvent(player, getLevel(player)))
+                        Bukkit.getPluginManager().callEvent(PlayerLevelUpEvent(onlinePlayer, getLevel(player)))
                     }
                 } else {
                     this.setOldLevel(player, getLevel(player))

@@ -24,6 +24,8 @@ class RPGCore : JavaPlugin() {
             it.addColumn(Column("level", DataType.INT).setNotNull(true).setDefault(1))
             it.addColumn(Column("last_level", DataType.INT).setNotNull(true).setDefault(1))
             it.addColumn(Column("skill_point", DataType.INT).setNotNull(true).setDefault(0))
+            it.addColumn(Column("max_stamina", DataType.INT).setNotNull(true).setDefault(100))
+            it.addColumn(Column("max_health", DataType.INT).setNotNull(true).setDefault(100))
         }.send(false)
 
         Table("status").also {

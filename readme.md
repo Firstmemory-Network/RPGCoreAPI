@@ -111,13 +111,56 @@ Int getStatusPoint(Player player)
 Int setStatusPoint(Player player, Int value)
 ```
 ### API.setStatusLevel
+ステータスレベルの個数を設定します。
 ```
 void setStatusLevel(Player player, StatusType type, int level)
 ```
 ### API.getStatusLevel
+ステータスレベルの個数を取得します。
 ```
 int getStatusLevel(Player player, StatusType type)
 ```
+### API.getMaxHealth
+プレイヤーの最大HPを取得します。
+```
+int getMaxHealth(Player player)
+```
+### API.setMaxHealth
+プレイヤーの最大HPを設定します。
+```
+void setMaxHealth(Player player, int maxHealth)
+```
+### API.getMaxStamina
+プレイヤーの最大スタミナを取得します。
+```
+int getMaxStamina(Player player)
+```
+### API.setMaxStamina
+プレイヤーの最大スタミナを設定します。
+```
+void setMaxStamina(Player player, int MaxStamina)
+```
+### API.setHealth
+プレイヤーのHPをリアルタイムで設定します。またサーバーを再起動するとリセットされます。
+```
+void setHealth(Player player, int health)
+```
+### API.getHealth
+プレイヤーのHPを取得します。
+```
+int getHealth(Player player)
+```
+### API.setStamina
+プレイヤーのスタミナをリアルタイムで設定します。またサーバーを再起動するとリセットされます。
+```
+void setStamina(Player player, int stamina)
+```
+### API.getStamina
+プレイヤーのスタミナを取得します。
+```
+int getStamina(Player player)
+```
+
 ### 一部の関数はここに記載されていないためコメントを参照してください。
 
 <br><br><br>
