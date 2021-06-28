@@ -132,6 +132,8 @@ interface API {
      * カスタムデータを取得します。存在しない場合はnullを返します。
      */
     fun getCustomData(player: OfflinePlayer, key: String): String?
+
+    fun registerEntity()
 }
 
 enum class StatusType {

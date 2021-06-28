@@ -8,6 +8,8 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class RPGCore : JavaPlugin() {
 
+    val levelUpCoefficient = config.getDouble("level_up_coefficient", 10.0)
+
     private var api: CoreAPI? = null
 
     override fun onEnable() {
