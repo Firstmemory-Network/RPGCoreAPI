@@ -1,5 +1,6 @@
 package dev.firstmemory.rpgcore
 
+import me.moru3.sqlow.DataType
 import org.bukkit.OfflinePlayer
 
 interface API {
@@ -115,6 +116,22 @@ interface API {
      * HPを取得します。
      */
     fun getHealth(player: OfflinePlayer): Int
+
+    /**
+     * カスタムデータを保存します。
+     * 適当に保存しまくった場合消えない傷が残るので慎重に扱ってください。
+     */
+    fun saveCustomData(player: OfflinePlayer, key: String, value: String)
+
+    /**
+     * カスタムデータを保存します、
+     * 適当に保存しまくった場合消えない傷が残るので慎重に扱ってください。
+     */
+
+    /**
+     * カスタムデータを取得します。存在しない場合はnullを返します。
+     */
+    fun getCustomData(player: OfflinePlayer, key: String): String?
 }
 
 enum class StatusType {

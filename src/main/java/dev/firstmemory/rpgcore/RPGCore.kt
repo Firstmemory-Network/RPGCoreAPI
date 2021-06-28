@@ -37,6 +37,12 @@ class RPGCore : JavaPlugin() {
             it.addColumn(Column("vomiting", DataType.SMALLINT).setDefault(10).setNotNull(true))
         }.send(false)
 
+        Table("custom_data").also {
+            it.addColumn(Column("uuid", DataType.VARCHAR).setNotNull(false))
+            it.addColumn(Column("key", DataType.TEXT).setPrimaryKey(true).setNotNull(true))
+            it.addColumn(Column("value", DataType.TEXT).setNotNull(false))
+        }.send(false)
+
         Bukkit.getOnlinePlayers().forEach(this::setupPlayer)
 
         api = CoreAPI(this)

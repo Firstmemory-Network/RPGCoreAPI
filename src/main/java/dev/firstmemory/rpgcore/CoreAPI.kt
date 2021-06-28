@@ -6,9 +6,7 @@ import dev.moru3.minepie.thread.MultiThreadRunner
 import dev.moru3.minepie.utils.BukkitRunTask.Companion.runTask
 import dev.moru3.minepie.utils.BukkitRunTask.Companion.runTaskLater
 import dev.moru3.minepie.utils.Utils.Companion.isNull
-import me.moru3.sqlow.Select
-import me.moru3.sqlow.Update
-import me.moru3.sqlow.Where
+import me.moru3.sqlow.*
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.attribute.Attribute
@@ -242,6 +240,20 @@ class CoreAPI(private val main: RPGCore): API {
     @Deprecated("setSkillPoint->setStatusPoint", ReplaceWith("setStatusPoint(player, value)"))
     override fun setSkillPoint(player: OfflinePlayer, value: Int) {
         setStatusPoint(player, value)
+    }
+
+    override fun saveCustomData(player: OfflinePlayer, key: String, value: String) {
+        MultiThreadRunner {
+            Insert("custom_data")
+                .addValue("player", player.uniqueId.toString())
+                .addValue("key", key)
+                .addValue("value", value)
+                .send(false)
+        }
+    }
+
+    override fun getCustomData(player: OfflinePlayer, key: String): String? {
+        TODO("Not yet implemented")
     }
 
     private fun setLevel(player: OfflinePlayer, level: Int) {
