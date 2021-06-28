@@ -36,6 +36,8 @@ class CoreAPI(private val main: RPGCore): API {
     private val health = mutableMapOf<UUID, Int>()
     private val stamina = mutableMapOf<UUID, Int>()
 
+    private val customDataCache = mutableMapOf<UUID, MutableMap<String, String>>()
+
     private val levelUpCoefficient = main.config.getDouble("level_up_coefficient", 10.0)
 
     override fun deposit(player: OfflinePlayer, value: Int) {
@@ -249,11 +251,21 @@ class CoreAPI(private val main: RPGCore): API {
                 .addValue("key", key)
                 .addValue("value", value)
                 .send(false)
+            customDataCache[player.uniqueId] =
+                (customDataCache[player.uniqueId]?:mutableMapOf()).also { it[key] = value }
         }
     }
 
     override fun getCustomData(player: OfflinePlayer, key: String): String? {
-        TODO("Not yet implemented")
+        customDataCache[player.uniqueId]?.get(key)?.also { return it }
+        val result = Select("custom_data", Where().addKey("uuid").equals().addValue(player.uniqueId.toString()).addKey("key").equals().addValue(key)).send()
+        return if(result.next()) {
+            result.getString("value").also {
+                customDataCache[player.uniqueId] = (customDataCache[player.uniqueId]?:mutableMapOf()).apply { this[key] = it }
+            }
+        } else {
+            return null
+        }
     }
 
     private fun setLevel(player: OfflinePlayer, level: Int) {
