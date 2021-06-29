@@ -1,6 +1,5 @@
 package dev.firstmemory.rpgcore
 
-import me.moru3.sqlow.DataType
 import org.bukkit.OfflinePlayer
 
 interface API {

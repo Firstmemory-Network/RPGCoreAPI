@@ -29,7 +29,7 @@ class RPGCore : JavaPlugin() {
             it.addColumn(Column("max_health", DataType.INT).setNotNull(true).setDefault(100))
         }.send(false)
 
-        Table("status").also {
+        Table("skills").also {
             it.addColumn(Column("uuid", DataType.VARCHAR).setProperty(36).setPrimaryKey(true))
             it.addColumn(Column("stamina", DataType.SMALLINT).setDefault(10).setNotNull(true))
             it.addColumn(Column("defence", DataType.SMALLINT).setDefault(10).setNotNull(true))

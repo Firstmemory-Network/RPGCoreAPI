@@ -30,10 +30,6 @@ class HeroData(val plugin: Plugin, val uuid: UUID): IHeroData {
                     Bukkit.getPluginManager().callEvent(event)
                     if(event.isCancelled) { return@MultiThreadRunner }
                 }
-                val offlinePlayer = Bukkit.getOfflinePlayer(uuid)
-                val event = PlayerMoneyDepositEvent(offlinePlayer, value)
-                Bukkit.getPluginManager().callEvent(event)
-                if(event.isCancelled) { return@MultiThreadRunner }
                 Update("userdata", Where().addKey("uuid").equals().addValue(uuid)).addValue("money", value).send()
                 field = value
             } }
@@ -90,7 +86,7 @@ class HeroData(val plugin: Plugin, val uuid: UUID): IHeroData {
         set(value) {
             MultiThreadRunner {
                 if(value<=field) { return@MultiThreadRunner }
-                Bukkit.getPluginManager().callEvent(PlayerMaxHealthChangeEvent(Bukkit.getOfflinePlayer(uuid), value))
+                Bukkit.getPluginManager().callEvent(PlayerStatusPointChangeEvent(Bukkit.getOfflinePlayer(uuid), value))
                 Update("userdata", Where().addKey("uuid").equals().addValue(uuid)).addValue("status_point", value).send()
                 field = value
             }
@@ -179,14 +175,15 @@ class HeroData(val plugin: Plugin, val uuid: UUID): IHeroData {
 
     companion object {
 
-        private val datas = mutableMapOf<UUID, IHeroData>()
+        private val data = mutableMapOf<UUID, IHeroData>()
 
         fun Plugin.createHeroData(player: Player): IHeroData {
+            data[player.uniqueId]?.also { return it }
             return HeroData(this, player.uniqueId)
         }
 
         fun getHeroData(offlinePlayer: OfflinePlayer): IHeroData? {
-            return datas[offlinePlayer.uniqueId]
+            return data[offlinePlayer.uniqueId]
         }
     }
 }
