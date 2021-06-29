@@ -1,15 +1,14 @@
 package dev.firstmemory.rpgcore
 
+import dev.firstmemory.rpgcore.data.HeroData.Companion.createHeroData
+import dev.moru3.minepie.events.EventRegister.Companion.registerEvent
 import dev.moru3.minepie.thread.MultiThreadScheduler
 import me.moru3.sqlow.*
 import org.bukkit.Bukkit
-import org.bukkit.OfflinePlayer
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
 
 class RPGCore : JavaPlugin() {
-
-    val levelUpCoefficient = config.getDouble("level_up_coefficient", 10.0)
-
     private var api: CoreAPI? = null
 
     override fun onEnable() {
@@ -25,7 +24,7 @@ class RPGCore : JavaPlugin() {
             it.addColumn(Column("exp", DataType.INT).setNotNull(true).setDefault(0))
             it.addColumn(Column("level", DataType.INT).setNotNull(true).setDefault(1))
             it.addColumn(Column("last_level", DataType.INT).setNotNull(true).setDefault(1))
-            it.addColumn(Column("skill_point", DataType.INT).setNotNull(true).setDefault(0))
+            it.addColumn(Column("status_point", DataType.INT).setNotNull(true).setDefault(0))
             it.addColumn(Column("max_stamina", DataType.INT).setNotNull(true).setDefault(100))
             it.addColumn(Column("max_health", DataType.INT).setNotNull(true).setDefault(100))
         }.send(false)
@@ -45,27 +44,18 @@ class RPGCore : JavaPlugin() {
             it.addColumn(Column("value", DataType.TEXT).setNotNull(false))
         }.send(false)
 
-        Bukkit.getOnlinePlayers().forEach(this::setupPlayer)
-
         api = CoreAPI(this)
 
         setRPGCoreAPI(api!!)
 
-        Bukkit.getOnlinePlayers().forEach(api!!::oldToNowLevel)
+        Bukkit.getOnlinePlayers().forEach { this.createHeroData(it) }
+
+        this.registerEvent<PlayerJoinEvent> { this@RPGCore.createHeroData(this.player) }
     }
 
     override fun onDisable() {
         SQLow.getConnection().close()
         MultiThreadScheduler.timers.forEach(MultiThreadScheduler::stop)
-    }
-
-    fun setupPlayer(player: OfflinePlayer) {
-        Insert("userdata")
-            .addValue(DataType.VARCHAR ,"uuid", player.uniqueId)
-            .send(false)
-        Insert("status")
-            .addValue(DataType.VARCHAR ,"uuid", player.uniqueId)
-            .send(false)
     }
 
     companion object {

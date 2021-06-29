@@ -34,7 +34,7 @@ interface API {
     /**
      * playerのExpからvalueを減算します。
      */
-    fun removeExp(player: OfflinePlayer, value: Int): Int
+    fun removeExp(player: OfflinePlayer, value: Int)
 
     /**
      * playerのexpを設定します。
@@ -132,8 +132,6 @@ interface API {
      * カスタムデータを取得します。存在しない場合はnullを返します。
      */
     fun getCustomData(player: OfflinePlayer, key: String): String?
-
-    fun registerEntity()
 }
 
 enum class StatusType {

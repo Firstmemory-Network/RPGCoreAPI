@@ -1,3 +1,0 @@
-# レベルアップのしやすさを1<で表しています。
-# (exp*levelUpCoefficient)^2が必要EXPになります。 default: 10
-level_up_coefficient: 10.0
