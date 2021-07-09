@@ -42,7 +42,6 @@ repositories {
         url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
     }
     mavenCentral()
-    maven { url 'https://jitpack.io' }
 }
 
 compileJava {
@@ -56,10 +55,7 @@ compileKotlin {
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
-
-    compileOnly group: 'io.netty', name: 'netty-all', version: '4.1.24.Final'
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    api 'com.github.moru348:SQLow:master-SNAPSHOT'
 }
 
 configurations {
