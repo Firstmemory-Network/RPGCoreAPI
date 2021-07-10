@@ -1,6 +1,6 @@
 name: RPGCoreAPI
 version: '1.0-SNAPSHOT'
-main: dev.firstmemory.rpgcore.RPGCore
+main: dev.moru3.RPGCoreAPI.RPGCore
 api-version: 1.16
 authors: [ moru3_48 ]
 description: プレイヤーのレベル,お金などを統括して管理するプラグインです

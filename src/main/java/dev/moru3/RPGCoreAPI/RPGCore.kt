@@ -1,4 +1,4 @@
-package dev.firstmemory.rpgcore
+package dev.moru3.RPGCoreAPI
 
 interface RPGCore {
     companion object {

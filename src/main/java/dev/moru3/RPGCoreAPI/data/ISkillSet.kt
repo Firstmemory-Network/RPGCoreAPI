@@ -1,4 +1,4 @@
-package dev.firstmemory.rpgcore.data
+package dev.moru3.RPGCoreAPI.data
 
 interface ISkillSet {
     var stamina: Int

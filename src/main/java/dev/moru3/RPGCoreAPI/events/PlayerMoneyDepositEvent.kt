@@ -1,4 +1,4 @@
-package dev.firstmemory.rpgcore.events
+package dev.moru3.RPGCoreAPI.events
 
 import org.bukkit.OfflinePlayer
 import org.bukkit.event.Cancellable
@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList
 /**
  * 非同期です。
  */
-class PlayerMoneyWithdrawalEvent(val player: OfflinePlayer, var value: Int): Event(), Cancellable {
+class PlayerMoneyDepositEvent(val player: OfflinePlayer, var value: Int): Event(), Cancellable {
 
     private var cancelled = false
     override fun isCancelled(): Boolean { return cancelled }

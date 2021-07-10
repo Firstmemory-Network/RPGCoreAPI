@@ -1,4 +1,4 @@
-package dev.firstmemory.rpgcore.events
+package dev.moru3.RPGCoreAPI.events
 
 import org.bukkit.OfflinePlayer
 import org.bukkit.event.Event
